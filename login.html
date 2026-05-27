@@ -11,7 +11,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fce4f3 0%, #f3e8ff 40%, #e8d5ff 70%, #fce4f3 100%);
+    background: linear-gradient(135deg, #EFF6FF 0%, #F4F7F6 40%, #E0F2FE 70%, #EFF6FF 100%);
     font-family: 'Plus Jakarta Sans', sans-serif;
     position: relative;
     overflow: hidden;
@@ -35,7 +35,7 @@
     width: 420px;
     height: 420px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(216,90,190,0.18) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(37,99,235,0.14) 0%, transparent 70%);
     top: -100px;
     left: -80px;
     pointer-events: none;
@@ -47,7 +47,7 @@
     width: 340px;
     height: 340px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(150,80,255,0.14) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
     bottom: -80px;
     right: -60px;
     pointer-events: none;
@@ -55,10 +55,10 @@
 
   /* Carte principale */
   .login-card {
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(200, 140, 220, 0.22);
+    border: 1px solid rgba(37, 99, 235, 0.16);
     border-radius: 28px;
     padding: 2.5rem 2rem;
     width: 100%;
@@ -67,10 +67,10 @@
     position: relative;
     z-index: 1;
     box-shadow:
-      0 0 0 1px rgba(180, 100, 220, 0.08),
-      0 8px 24px rgba(160, 60, 220, 0.10),
-      0 24px 60px rgba(180, 80, 210, 0.15),
-      0 48px 100px rgba(200, 100, 230, 0.10);
+      0 0 0 1px rgba(37, 99, 235, 0.06),
+      0 8px 24px rgba(37, 99, 235, 0.10),
+      0 24px 60px rgba(14, 165, 233, 0.12),
+      0 48px 100px rgba(37, 99, 235, 0.08);
   }
 
   /* Logo */
@@ -85,7 +85,7 @@
   .logo-mark {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #d855c8, #9042e8);
+    background: linear-gradient(135deg, #2563EB, #0EA5E9);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -96,18 +96,19 @@
     color: white;
     letter-spacing: -1px;
     flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, .30);
   }
 
   .logo-name {
     font-family: 'Clash Display', sans-serif;
     font-weight: 600;
     font-size: 22px;
-    color: #1a0a2e;
+    color: #0F172A;
     letter-spacing: -0.5px;
   }
 
   .logo-name span {
-    background: linear-gradient(90deg, #d044b8, #8b35e8);
+    background: linear-gradient(90deg, #2563EB, #0EA5E9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -118,12 +119,12 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: linear-gradient(135deg, #f8eeff, #fce8f8);
-    border: 1px solid #e8c8f8;
+    background: linear-gradient(135deg, #EFF6FF, #E0F2FE);
+    border: 1px solid rgba(37, 99, 235, .20);
     border-radius: 50px;
     padding: 5px 14px;
     font-size: 12px;
-    color: #9040c8;
+    color: #1d4ed8;
     font-weight: 600;
     margin-bottom: 1.2rem;
   }
@@ -131,7 +132,7 @@
   .ia-badge svg {
     width: 13px;
     height: 13px;
-    fill: #c840d8;
+    fill: #0EA5E9;
   }
 
   /* Titres */
@@ -139,7 +140,7 @@
     font-family: 'Clash Display', sans-serif;
     font-weight: 600;
     font-size: 21px;
-    color: #1a0a2e;
+    color: #0F172A;
     text-align: center;
     margin: 0 0 0.3rem;
     letter-spacing: -0.3px;
@@ -147,20 +148,20 @@
 
   .login-sub {
     font-size: 13px;
-    color: #8a7a9e;
+    color: #4B6A8A;
     text-align: center;
     margin: 0 0 1.6rem;
   }
 
   /* Messages flash */
   .flash-msg {
-    color: #c0185a;
+    color: #DC2626;
     font-size: 13px;
     text-align: center;
     margin-bottom: 14px;
     font-weight: 500;
-    background: #fde8f0;
-    border: 1px solid #f4b8d0;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
     border-radius: 12px;
     padding: 10px 14px;
   }
@@ -184,7 +185,7 @@
   .field-icon svg {
     width: 17px;
     height: 17px;
-    stroke: #c090d8;
+    stroke: #93C5FD;
     fill: none;
     stroke-width: 1.8;
     stroke-linecap: round;
@@ -194,11 +195,11 @@
   .field-wrap input {
     width: 100%;
     padding: 13px 14px 13px 42px;
-    background: #faf7ff;
-    border: 1.5px solid #e8d8f8;
+    background: #F8FAFC;
+    border: 1.5px solid #CBD5E1;
     border-radius: 14px;
     font-size: 14px;
-    color: #1a0a2e;
+    color: #0F172A;
     box-sizing: border-box;
     font-family: 'Plus Jakarta Sans', sans-serif;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -206,12 +207,12 @@
   }
 
   .field-wrap input::placeholder {
-    color: #c0a8d8;
+    color: #94A3B8;
   }
 
   .field-wrap input:focus {
-    border-color: #b060e8;
-    box-shadow: 0 0 0 3px rgba(176, 80, 230, 0.12);
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     background: #ffffff;
   }
 
@@ -221,20 +222,20 @@
     text-align: right;
     font-size: 12.5px;
     font-weight: 600;
-    color: #a040d0;
+    color: #2563EB;
     text-decoration: none;
     margin: -4px 0 18px;
     transition: color 0.2s;
   }
 
   .forgot-link:hover {
-    color: #7020b0;
+    color: #1d4ed8;
   }
 
   /* Bouton principal */
   .btn-login {
     width: 100%;
-    background: linear-gradient(135deg, #d044b8 0%, #9040e8 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
     color: white;
     border: none;
     border-radius: 50px;
@@ -249,13 +250,13 @@
     justify-content: center;
     gap: 8px;
     margin-bottom: 14px;
-    box-shadow: 0 4px 18px rgba(160, 60, 220, 0.3);
+    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.3);
   }
 
   .btn-login:hover {
     opacity: 0.92;
     transform: translateY(-1px);
-    box-shadow: 0 6px 22px rgba(160, 60, 220, 0.38);
+    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.38);
   }
 
   .btn-login:active {
@@ -283,13 +284,13 @@
   .divider hr {
     flex: 1;
     border: none;
-    border-top: 1px solid #ead8f8;
+    border-top: 1px solid #CBD5E1;
     margin: 0;
   }
 
   .divider span {
     font-size: 12px;
-    color: #c0a8d8;
+    color: #94A3B8;
     white-space: nowrap;
     font-weight: 500;
   }
@@ -298,8 +299,8 @@
   .btn-gmail {
     width: 100%;
     background: white;
-    color: #1a0a2e;
-    border: 1.5px solid #e8d8f8;
+    color: #0F172A;
+    border: 1.5px solid #CBD5E1;
     border-radius: 50px;
     padding: 12px;
     font-weight: 600;
@@ -316,8 +317,8 @@
   }
 
   .btn-gmail:hover {
-    border-color: #c090e8;
-    background: #faf7ff;
+    border-color: #93C5FD;
+    background: #F8FAFC;
   }
 
   .btn-gmail svg {
@@ -330,8 +331,8 @@
   .btn-register {
     width: 100%;
     background: transparent;
-    color: #9040e8;
-    border: 1.5px solid #c090e0;
+    color: #2563EB;
+    border: 1.5px solid #93C5FD;
     border-radius: 50px;
     padding: 12px;
     font-weight: 600;
@@ -348,9 +349,9 @@
   }
 
   .btn-register:hover {
-    background: #f3e8ff;
-    color: #7020c8;
-    border-color: #a060d8;
+    background: #EFF6FF;
+    color: #1d4ed8;
+    border-color: #2563EB;
   }
 
   .btn-register svg {
@@ -368,12 +369,12 @@
     margin-top: 1.4rem;
     text-align: center;
     font-size: 11.5px;
-    color: #b8a8cc;
+    color: #94A3B8;
     line-height: 1.6;
   }
 
   .legal a {
-    color: #a040c8;
+    color: #2563EB;
     text-decoration: none;
     font-weight: 600;
   }
@@ -405,7 +406,7 @@
   <div class="center">
     <div class="ia-badge">
       <!-- Icône étincelle -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c840d8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
         <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
       </svg>
       Recrutement piloté par l'IA

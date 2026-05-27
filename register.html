@@ -12,7 +12,7 @@
     /* Côté Visuel gauche */
     .brand-side {
       flex: 1;
-      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
+      background: linear-gradient(135deg, #1E293B 0%, #1d4ed8 60%, #0EA5E9 100%);
       display: flex; flex-direction: column; justify-content: center; align-items: center; color: #ffffff; padding: 3rem; text-align: center;
     }
     @media (max-width: 850px) { .brand-side { display: none; } }
@@ -33,7 +33,7 @@
 
     /* Barre de progression d'étapes discrète */
     .progress-bar-container { background: #efefef; height: 3px; border-radius: 2px; margin-bottom: 1.5rem; width: 100%; overflow: hidden; }
-    .progress-bar-fill { background: #0095f6; height: 100%; width: 20%; transition: width 0.3s ease; }
+    .progress-bar-fill { background: #2563EB; height: 100%; width: 20%; transition: width 0.3s ease; }
 
     /* Étapes de l'onboarding */
     .step-content { display: none; }
@@ -48,8 +48,8 @@
 
     /* Boutons de navigation */
     .btn-row { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
-    .btn-next { flex: 1; background: #0095f6; color: white; border: none; border-radius: 8px; padding: 0.6rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
-    .btn-next:hover { background: #1877f2; }
+    .btn-next { flex: 1; background: #2563EB; color: white; border: none; border-radius: 8px; padding: 0.6rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .btn-next:hover { background: #1d4ed8; }
     .btn-prev { background: #fafafa; color: #262626; border: 1px solid #dbdbdb; border-radius: 8px; padding: 0.6rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
 
     /* Style de la zone d'avatar type Instagram */
@@ -57,11 +57,11 @@
     .avatar-preview { width: 90px; height: 90px; border-radius: 50%; background: #fafafa; border: 1px dashed #dbdbdb; margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #8e8e8e; overflow: hidden; object-fit: cover; }
 
     .redirect-box { width: 100%; max-width: 350px; background: #ffffff; border: 1px solid #dbdbdb; border-radius: 12px; padding: 1.25rem; text-align: center; margin-top: 0.75rem; font-size: 0.85rem; color: #262626; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
-    .redirect-box a { color: #0095f6; text-decoration: none; font-weight: 600; }
+    .redirect-box a { color: #2563EB; text-decoration: none; font-weight: 600; }
 
     /* Loader d'inscription final */
     .loader-container { display: none; text-align: center; padding: 2rem 0; }
-    .spinner { width: 32px; height: 32px; border: 3px solid #efefef; border-top: 3px solid #0095f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #E0F2FE; border-top: 3px solid #2563EB; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
@@ -138,7 +138,7 @@
           </div>
           <div class="btn-row">
             <button type="button" class="btn-prev" onclick="goToStep(4)">Retour</button>
-            <button type="submit" class="btn-next" style="background: #10b981;" onclick="submitForm()">Finaliser l'inscription ✓</button>
+            <button type="submit" class="btn-next" style="background: #059669;" onclick="submitForm()">Finaliser l'inscription ✓</button>
           </div>
         </div>
 
