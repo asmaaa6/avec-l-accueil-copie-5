@@ -267,7 +267,7 @@ def dashboard():
     
     # Récupérer les offres créées par l'utilisateur
     cur.execute("SELECT * FROM offres WHERE user_id = %s ORDER BY created_at DESC", (session['user_id'],))
-    offres = cur.fetchall()
+    offres = [dict(r) for r in cur.fetchall()]
     
     # Statistiques rapides globales
     cur.execute("SELECT COUNT(*) as count FROM offres WHERE user_id = %s", (session['user_id'],))
@@ -290,7 +290,7 @@ def analyse():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT * FROM offres WHERE user_id = %s ORDER BY created_at DESC", (session['user_id'],))
-    offres = cur.fetchall()
+    offres = [dict(r) for r in cur.fetchall()]
     cur.close()
     conn.close()
     return render_template('analyse.html', offres=offres)
@@ -336,7 +336,8 @@ def match():
     
     # Récupérer l'offre choisie
     cur.execute("SELECT * FROM offres WHERE id = %s AND user_id = %s", (offre_id, session['user_id']))
-    offer = cur.fetchone()
+    offer_row = cur.fetchone()
+    offer = dict(offer_row) if offer_row else None
     
     if not offer:
         cur.close()
