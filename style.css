@@ -1,0 +1,556 @@
+/* =============================================
+   CV Assistant – style.css
+   Prototype: fond rose pâle, gradient pink→purple
+   Variables inchangées + nouvelles ajoutées
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --primary: #6366F1;
+  --primary-2: #4F46E5;
+
+  /* Nouvelles couleurs du prototype */
+  --pink:        #f472b6;
+  --pink-light:  #fce7f3;
+  --pink-mid:    #fb7185;
+  --purple:      #a855f7;
+  --purple-2:    #9333ea;
+  --gradient:    linear-gradient(135deg, #f472b6 0%, #a855f7 100%);
+
+  --text:        #0f172a;
+  --text-muted:  #64748b;
+  --bg:          #fdf2f8;   /* fond rose très pâle du prototype */
+  --white:       #ffffff;
+  --border:      rgba(244, 114, 182, 0.18);
+}
+
+/* ── Base ── */
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  margin: 0;
+}
+
+/* ── Navbar ── */
+.navbar {
+  background: rgba(253, 242, 248, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+
+.navbar-brand {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text) !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--gradient);
+  color: white;
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: .78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-logo-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: .7rem;
+}
+
+.nav-link {
+  color: var(--text-muted) !important;
+  font-weight: 500;
+  font-size: .92rem;
+  transition: color .2s;
+  padding: 6px 12px !important;
+}
+
+.nav-link:hover { color: var(--pink-mid) !important; }
+
+.btn-login {
+  background: transparent;
+  border: 1.5px solid rgba(148, 163, 184, .4);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 7px 18px;
+  font-weight: 600;
+  font-size: .88rem;
+  transition: border-color .2s, background .2s;
+  text-decoration: none;
+}
+
+.btn-login:hover {
+  border-color: var(--pink);
+  color: var(--pink-mid);
+  background: var(--pink-light);
+}
+
+.btn-signup {
+  background: var(--gradient);
+  border: 0;
+  color: white !important;
+  border-radius: 10px;
+  padding: 7px 18px;
+  font-weight: 600;
+  font-size: .88rem;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, .28);
+  transition: opacity .2s, transform .2s;
+  text-decoration: none;
+}
+
+.btn-signup:hover {
+  opacity: .9;
+  transform: translateY(-1px);
+}
+
+/* ── Hero ── */
+.hero-section {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cercles décoratifs en fond */
+.hero-section::before,
+.hero-section::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .35;
+  pointer-events: none;
+}
+.hero-section::before {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #f9a8d4 0%, transparent 70%);
+  top: -100px;
+  right: -80px;
+}
+.hero-section::after {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+  bottom: -80px;
+  left: -60px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .7s ease both;
+}
+
+/* Badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(244, 114, 182, .15);
+  border: 1px solid rgba(244, 114, 182, .35);
+  color: #be185d;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 100px;
+  margin-bottom: 28px;
+}
+
+.hero-badge i { font-size: .75rem; }
+
+/* Title */
+.hero-title {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto 36px;
+}
+
+/* CTA Button */
+.btn-primary-custom {
+  background: var(--gradient);
+  border: 0;
+  color: white !important;
+  border-radius: 16px;
+  padding: 16px 36px;
+  font-weight: 700;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 32px rgba(168, 85, 247, .35);
+  transition: transform .2s, box-shadow .2s;
+  text-decoration: none;
+}
+
+.btn-primary-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(168, 85, 247, .45);
+  color: white !important;
+}
+
+.btn-outline-custom {
+  background: white;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 15px 32px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: border-color .2s, background .2s;
+  text-decoration: none;
+}
+
+.btn-outline-custom:hover {
+  border-color: var(--pink);
+  background: var(--pink-light);
+  color: var(--text);
+}
+
+.cta-note {
+  margin-top: 14px;
+  font-size: .83rem;
+  color: var(--text-muted);
+}
+
+/* ── Features Section ── */
+.features-section {
+  padding: 80px 0;
+  background: var(--bg);
+}
+
+.section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.7rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.section-subtitle {
+  font-size: .98rem;
+  color: var(--text-muted);
+}
+
+.feature-card {
+  background: var(--white);
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 20px;
+  padding: 32px 28px;
+  height: 100%;
+  transition: transform .25s, box-shadow .25s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .04);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(168, 85, 247, .12);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(244, 114, 182, .12);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.feature-icon i {
+  font-size: 1.2rem;
+  color: var(--pink-mid);
+}
+
+.feature-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.feature-desc {
+  font-size: .9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Steps Section ── */
+.steps-section {
+  background: white;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.step-number {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: white;
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 20px rgba(168, 85, 247, .25);
+}
+
+.step-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-size: .88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── CTA Section ── */
+.cta-section {
+  background: linear-gradient(135deg, rgba(244, 114, 182, .1) 0%, rgba(168, 85, 247, .08) 100%);
+}
+
+.cta-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--text);
+}
+
+.cta-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Footer ── */
+.footer {
+  background: white;
+  border-top: 1px solid rgba(148, 163, 184, .25);
+}
+
+.footer-links li { margin-bottom: 8px; }
+
+.footer-links a,
+.footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: .88rem;
+  transition: color .2s;
+}
+
+.footer-links a:hover,
+.footer a:hover {
+  color: var(--pink-mid);
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-section { padding: 60px 0 40px; min-height: auto; }
+  .hero-title   { font-size: 2rem; }
+  .btn-primary-custom { padding: 14px 26px; font-size: .95rem; }
+}
+
+/* =============================================
+   SIDEBAR GAUCHE – toggleable
+   ============================================= */
+
+/* Bouton toggle flottant */
+.sidebar-toggle {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1100;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--gradient);
+  border: 0;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, .35);
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.sidebar-toggle:hover {
+  transform: scale(1.07);
+  box-shadow: 0 6px 22px rgba(168, 85, 247, .45);
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  background: white;
+  border-right: 1px solid var(--border);
+  box-shadow: 4px 0 24px rgba(0,0,0,.08);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Header sidebar */
+.sidebar-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Nav liens */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: .92rem;
+  transition: background .2s, color .2s;
+}
+
+.sidebar-link i {
+  width: 18px;
+  text-align: center;
+  font-size: .9rem;
+}
+
+.sidebar-link:hover {
+  background: rgba(244, 114, 182, .1);
+  color: var(--pink-mid);
+}
+
+/* Footer sidebar (boutons connexion/inscription) */
+.sidebar-footer {
+  padding: 16px 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-footer .btn-login {
+  display: block;
+  text-align: center;
+  font-size: .88rem;
+}
+
+.sidebar-footer .btn-signup {
+  display: block;
+  text-align: center;
+  font-size: .88rem;
+}
+
+/* Overlay sombre derrière sidebar */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .35);
+  z-index: 1040;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Contenu principal décalé quand sidebar ouverte (desktop) */
+.main-content {
+  transition: margin-left .3s cubic-bezier(.4, 0, .2, 1);
+}
+
+@media (min-width: 992px) {
+  .main-content.shifted {
+    margin-left: 260px;
+  }
+}
