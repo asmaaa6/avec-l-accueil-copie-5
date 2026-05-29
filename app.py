@@ -411,16 +411,15 @@ def matching():
     if r: return r
 
     if request.method == 'POST':
-        offre_id       = request.form.get('offre_id')
-        files          = [f for f in request.files.getlist('cvFiles')
-                          if f and f.filename != '' and allowed_file(f.filename)]
-        existing_cvs   = request.form.getlist('existing_cvs')  # fichiers déjà uploadés
+        offre_id = request.form.get('offre_id')
+        files    = [f for f in request.files.getlist('cvFiles')
+                    if f and f.filename != '' and allowed_file(f.filename)]
 
         if not offre_id:
             flash("Veuillez sélectionner une offre.", "danger")
             return redirect(url_for('matching'))
-        if not files and not existing_cvs:
-            flash("Veuillez sélectionner au moins un candidat ou uploader un CV.", "danger")
+        if not files:
+            flash("Veuillez ajouter au moins un CV (PDF).", "danger")
             return redirect(url_for('matching'))
 
         conn = get_db_connection(); cur = conn.cursor()
@@ -437,8 +436,6 @@ def matching():
 
         # ── Étape 1 : Extraire tous les textes ──
         candidats_data = []
-
-        # Nouveaux CVs uploadés
         for file in files:
             filename  = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -448,20 +445,6 @@ def matching():
                 flash(f"⚠️ {filename} : PDF non lisible (scanné sans OCR). Ignoré.", "warning")
                 continue
             candidats_data.append({'filename': filename, 'texte': texte})
-
-        # CVs existants sélectionnés depuis la liste
-        for nom_fichier in existing_cvs:
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], nom_fichier)
-            if os.path.exists(file_path):
-                texte = extract_pdf_text(file_path)
-                if texte.strip():
-                    candidats_data.append({'filename': nom_fichier, 'texte': texte})
-            else:
-                # Récupérer le contenu depuis la BDD si le fichier physique n'existe plus
-                cur.execute("SELECT contenu, nom_candidat FROM cvs WHERE nom_fichier=%s LIMIT 1;", (nom_fichier,))
-                row = cur.fetchone()
-                if row and row['contenu']:
-                    candidats_data.append({'filename': nom_fichier, 'texte': row['contenu']})
 
         if not candidats_data:
             flash("Aucun texte extrait des CVs fournis.", "danger")
@@ -519,17 +502,8 @@ def matching():
     cur.execute("SELECT id,titre,competences FROM offres WHERE user_id=%s ORDER BY created_at DESC;",
                 (session['user_id'],))
     mes_offres = cur.fetchall()
-    # Candidats déjà analysés (CV en BDD), distincts par nom_candidat + nom_fichier
-    cur.execute("""
-        SELECT DISTINCT ON (c.nom_fichier) c.nom_fichier, c.nom_candidat, c.score, c.offre_id
-        FROM cvs c
-        JOIN offres o ON c.offre_id = o.id
-        WHERE o.user_id = %s
-        ORDER BY c.nom_fichier, c.score DESC;
-    """, (session['user_id'],))
-    candidats_existants = cur.fetchall()
     cur.close(); conn.close()
-    return render_template('matching.html', offres=mes_offres, candidats_existants=candidats_existants)
+    return render_template('matching.html', offres=mes_offres)
 
 # ══════════════════════════════════════════
 #   RÉSULTATS
@@ -605,6 +579,31 @@ def supprimer_candidat(candidat_id):
     finally:
         cur.close(); conn.close()
     return redirect(url_for('candidats'))
+
+
+@app.route('/candidats/upload', methods=['GET', 'POST'])
+def upload_cv():
+    r = auth_required()
+    if r: return r
+
+    if request.method == 'POST':
+        files = [f for f in request.files.getlist('cvFiles')
+                 if f and f.filename != '' and allowed_file(f.filename)]
+        if not files:
+            flash('Veuillez sélectionner au moins un fichier PDF.', 'danger')
+            return redirect(url_for('upload_cv'))
+
+        sauvegardes = []
+        for file in files:
+            filename  = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            sauvegardes.append(filename)
+
+        flash(f"{len(sauvegardes)} CV(s) uploadé(s) avec succès. Lancez un matching pour les analyser.", 'success')
+        return redirect(url_for('candidats'))
+
+    return render_template('upload_cv.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
