@@ -61,15 +61,19 @@ def allowed_file(f):
 # ══════════════════════════════════════════
 #   BASE DE DONNÉES
 # ══════════════════════════════════════════
+
+
+
+DATABASE_URL = "postgresql://rh_db_47fy_user:vjsiOV2HCymSwLTiaI4Q0aguKaUKbeAF@dpg-d8csolmq1p3s73aklrs0-a.frankfurt-postgres.render.com/rh_db_47fy"
+
 def get_db_connection():
     return psycopg2.connect(
-        host="localhost",
-        database="yassir_rh",
-        user="asma",
-        password="",
+        DATABASE_URL,
+        sslmode="require",
         cursor_factory=RealDictCursor
     )
-
+conn = get_db_connection()
+print("DB CONNECTED OK")
 # ══════════════════════════════════════════
 #   NLP UTILITIES
 # ══════════════════════════════════════════
@@ -312,23 +316,30 @@ def register():
             cur.close(); conn.close()
     return render_template('register.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        email    = request.form.get('email')
-        password = request.form.get('password')
-        conn = get_db_connection(); cur = conn.cursor()
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+
         cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
         user = cur.fetchone()
-        cur.close(); conn.close()
-        if user and check_password_hash(user['password'], password):
-            session['user_id']         = user['id']
-            session['user_nom']        = user['nom']
-            session['user_entreprise'] = user['entreprise']
-            return redirect(url_for('dashboard'))
-        flash("Identifiants incorrects.", "danger")
-    return render_template('login.html')
 
+        cur.close()
+        conn.close()
+
+        # CORRECTION ICI : Utilisation de check_password_hash
+        if user and check_password_hash(user["password"], password):
+            session["user_id"] = user["id"]
+            return redirect("/dashboard")
+        else:
+            flash("Email ou mot de passe incorrect", "danger")
+            return render_template("login.html")
+
+    return render_template("login.html")
 @app.route('/logout')
 def logout():
     session.clear()
@@ -338,6 +349,9 @@ def auth_required():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     return None
+
+
+
 
 # ══════════════════════════════════════════
 #   DASHBOARD
@@ -411,15 +425,16 @@ def matching():
     if r: return r
 
     if request.method == 'POST':
-        offre_id = request.form.get('offre_id')
-        files    = [f for f in request.files.getlist('cvFiles')
-                    if f and f.filename != '' and allowed_file(f.filename)]
+        offre_id       = request.form.get('offre_id')
+        files          = [f for f in request.files.getlist('cvFiles')
+                          if f and f.filename != '' and allowed_file(f.filename)]
+        existing_cvs   = request.form.getlist('existing_cvs')  # fichiers déjà uploadés
 
         if not offre_id:
             flash("Veuillez sélectionner une offre.", "danger")
             return redirect(url_for('matching'))
-        if not files:
-            flash("Veuillez ajouter au moins un CV (PDF).", "danger")
+        if not files and not existing_cvs:
+            flash("Veuillez sélectionner au moins un candidat ou uploader un CV.", "danger")
             return redirect(url_for('matching'))
 
         conn = get_db_connection(); cur = conn.cursor()
@@ -436,6 +451,8 @@ def matching():
 
         # ── Étape 1 : Extraire tous les textes ──
         candidats_data = []
+
+        # Nouveaux CVs uploadés
         for file in files:
             filename  = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -445,6 +462,20 @@ def matching():
                 flash(f"⚠️ {filename} : PDF non lisible (scanné sans OCR). Ignoré.", "warning")
                 continue
             candidats_data.append({'filename': filename, 'texte': texte})
+
+        # CVs existants sélectionnés depuis la liste
+        for nom_fichier in existing_cvs:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], nom_fichier)
+            if os.path.exists(file_path):
+                texte = extract_pdf_text(file_path)
+                if texte.strip():
+                    candidats_data.append({'filename': nom_fichier, 'texte': texte})
+            else:
+                # Récupérer le contenu depuis la BDD si le fichier physique n'existe plus
+                cur.execute("SELECT contenu, nom_candidat FROM cvs WHERE nom_fichier=%s LIMIT 1;", (nom_fichier,))
+                row = cur.fetchone()
+                if row and row['contenu']:
+                    candidats_data.append({'filename': nom_fichier, 'texte': row['contenu']})
 
         if not candidats_data:
             flash("Aucun texte extrait des CVs fournis.", "danger")
@@ -502,8 +533,17 @@ def matching():
     cur.execute("SELECT id,titre,competences FROM offres WHERE user_id=%s ORDER BY created_at DESC;",
                 (session['user_id'],))
     mes_offres = cur.fetchall()
+    # Candidats déjà analysés (CV en BDD), distincts par nom_candidat + nom_fichier
+    cur.execute("""
+        SELECT DISTINCT ON (c.nom_fichier) c.nom_fichier, c.nom_candidat, c.score, c.offre_id
+        FROM cvs c
+        JOIN offres o ON c.offre_id = o.id
+        WHERE o.user_id = %s
+        ORDER BY c.nom_fichier, c.score DESC;
+    """, (session['user_id'],))
+    candidats_existants = cur.fetchall()
     cur.close(); conn.close()
-    return render_template('matching.html', offres=mes_offres)
+    return render_template('matching.html', offres=mes_offres, candidats_existants=candidats_existants)
 
 # ══════════════════════════════════════════
 #   RÉSULTATS
@@ -579,31 +619,6 @@ def supprimer_candidat(candidat_id):
     finally:
         cur.close(); conn.close()
     return redirect(url_for('candidats'))
-
-
-@app.route('/candidats/upload', methods=['GET', 'POST'])
-def upload_cv():
-    r = auth_required()
-    if r: return r
-
-    if request.method == 'POST':
-        files = [f for f in request.files.getlist('cvFiles')
-                 if f and f.filename != '' and allowed_file(f.filename)]
-        if not files:
-            flash('Veuillez sélectionner au moins un fichier PDF.', 'danger')
-            return redirect(url_for('upload_cv'))
-
-        sauvegardes = []
-        for file in files:
-            filename  = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            sauvegardes.append(filename)
-
-        flash(f"{len(sauvegardes)} CV(s) uploadé(s) avec succès. Lancez un matching pour les analyser.", 'success')
-        return redirect(url_for('candidats'))
-
-    return render_template('upload_cv.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

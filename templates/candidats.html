@@ -44,7 +44,7 @@
 
   .score-display {
     font-family: 'DM Mono', monospace;
-    font-size: 0.88rem; font-weight: 700;
+    font-size: 0.88rem; font-weight: 700; color: var(--accent);
     min-width: 52px; text-align: right;
   }
 
@@ -58,71 +58,6 @@
   }
   .btn-delete:hover { background: var(--red-l); color: var(--red); border-color: var(--red); }
 
-  /* ── Upload panel ── */
-  .upload-panel {
-    display: none;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 24px;
-    animation: slideDown 0.25s ease;
-  }
-  .upload-panel.open { display: block; }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .drop-zone {
-    border: 2px dashed var(--border);
-    background: var(--bg);
-    border-radius: 12px;
-    padding: 36px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  .drop-zone:hover,
-  .drop-zone.dragover {
-    border-color: var(--accent);
-    background: var(--accent-l);
-  }
-  .drop-zone-icon {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--white); box-shadow: var(--shadow-sm);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 12px; color: var(--accent); font-size: 1.3rem;
-  }
-  .drop-zone p { margin: 0; }
-  .drop-zone .main-text { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
-  .drop-zone .sub-text  { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
-
-  .file-preview-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; margin-top: 16px;
-  }
-  .file-preview-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 14px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .file-preview-card .fp-icon {
-    color: #EF4444; font-size: 1.1rem; flex-shrink: 0;
-  }
-  .file-preview-card .fp-name {
-    font-size: 0.82rem; font-weight: 600; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .file-preview-card .fp-size {
-    font-size: 0.72rem; color: var(--muted); margin-top: 1px;
-  }
-
-  .upload-actions {
-    display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
-  }
-
   /* ── Modal ── */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
@@ -130,6 +65,7 @@
     z-index: 999; align-items: center; justify-content: center;
   }
   .modal-overlay.active { display: flex; }
+
   .modal-box {
     background: var(--white); border-radius: 18px;
     padding: 32px 28px; max-width: 400px; width: 90%;
@@ -140,6 +76,7 @@
     from { transform: scale(0.92); opacity: 0; }
     to   { transform: scale(1);    opacity: 1; }
   }
+
   .modal-icon {
     width: 56px; height: 56px; border-radius: 50%;
     background: var(--red-l); color: var(--red);
@@ -149,7 +86,9 @@
   .modal-title { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
   .modal-msg   { font-size: 0.87rem; color: var(--muted); line-height: 1.55; margin-bottom: 24px; }
   .modal-name  { font-weight: 700; color: var(--text); }
+
   .modal-actions { display: flex; gap: 10px; justify-content: center; }
+
   .btn-cancel {
     padding: 10px 22px; border-radius: 10px;
     border: 1px solid var(--border); background: var(--white);
@@ -157,6 +96,7 @@
     cursor: pointer; transition: var(--transition);
   }
   .btn-cancel:hover { background: var(--bg); }
+
   .btn-confirm-delete {
     padding: 10px 22px; border-radius: 10px;
     border: none; background: var(--red);
@@ -174,53 +114,27 @@
 {% endblock %}
 
 {% block content %}
-
-<!-- Header -->
 <div class="page-header">
   <div>
     <h1>Candidats</h1>
     <p>{{ candidats|length }} candidat{{ 's' if candidats|length != 1 }} analysé{{ 's' if candidats|length != 1 }}</p>
   </div>
-  <div style="display:flex; gap:10px;">
-    <button class="btn btn-secondary" onclick="toggleUpload(this)">
-      <i class="fa-solid fa-upload"></i> Ajouter un CV
-    </button>
-    <a href="/matching" class="btn btn-primary">
-      <i class="fa-solid fa-wand-magic-sparkles"></i> Nouveau matching
-    </a>
-  </div>
+  <a href="/matching" class="btn btn-primary">
+    <i class="fa-solid fa-wand-magic-sparkles"></i> Nouveau matching
+  </a>
 </div>
 
-<!-- Panel upload (caché par défaut) -->
-<div class="upload-panel" id="uploadPanel">
-  <form action="/candidats/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-    <div class="drop-zone" id="dropZone">
-      <div class="drop-zone-icon"><i class="fa-solid fa-folder-open"></i></div>
-      <p class="main-text">Glissez-déposez vos CV ici</p>
-      <p class="sub-text">Format PDF · Max. 10 fichiers</p>
-      <span class="btn btn-secondary" style="font-size:0.82rem; padding:7px 16px;">Parcourir</span>
-      <input type="file" name="cvFiles" id="cvFiles" multiple accept=".pdf" style="display:none;">
-    </div>
-
-    <div id="filePreviewGrid" class="file-preview-grid" style="display:none;"></div>
-
-    <div class="upload-actions">
-      <button type="button" class="btn btn-ghost" onclick="toggleUpload()">Annuler</button>
-      <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
-        <i class="fa-solid fa-upload"></i> Uploader
-      </button>
-    </div>
-  </form>
-</div>
-
-<!-- Liste candidats -->
 {% if candidats %}
   <div class="analyses-list">
     {% for c in candidats %}
-      {% set nom = c.nom_candidat if c.nom_candidat else c.nom_fichier | replace('.pdf','') | replace('_',' ') | title %}
+      {% set nom = c.nom_fichier | replace('.pdf','') | replace('_',' ') | title %}
       {% set initiale = nom[0] | upper %}
       <div class="analyse-row">
+
+        <!-- Avatar initiale -->
         <div class="analyse-avatar">{{ initiale }}</div>
+
+        <!-- Infos -->
         <div class="analyse-info">
           <div class="analyse-name">{{ nom }}</div>
           <div class="analyse-meta">
@@ -228,20 +142,26 @@
               {{ c.created_at.strftime('%d %b %Y') if c.created_at else 'Récemment' }}
             </span>
             <span>·</span>
-            <span>{{ c.offre_titre }}</span>
-            <span>·</span>
             <span>Score : {{ c.score }}/100</span>
           </div>
         </div>
+
+        <!-- Droite -->
         <div class="analyse-right">
           <span class="status-badge">Terminé</span>
+
+          <!-- Score coloré -->
           <span class="score-display" style="
             {% if c.score >= 75 %}color:#10B981;
             {% elif c.score >= 50 %}color:var(--accent);
             {% elif c.score >= 30 %}color:#F59E0B;
             {% else %}color:var(--red);{% endif %}
           ">{{ c.score }}/100</span>
-          <button class="btn-delete" onclick="openModal({{ c.id }}, '{{ nom }}')" title="Supprimer">
+
+          <!-- Bouton supprimer -->
+          <button class="btn-delete"
+            onclick="openModal({{ c.id }}, '{{ nom }}')"
+            title="Supprimer ce candidat">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -254,20 +174,15 @@
     <div class="empty-state">
       <div class="empty-icon">👤</div>
       <h3>Aucun candidat pour le moment</h3>
-      <p>Uploadez des CVs puis lancez un matching IA pour analyser vos candidats.</p>
-      <div style="display:flex; gap:10px; justify-content:center;">
-        <button class="btn btn-secondary" onclick="toggleUpload()">
-          <i class="fa-solid fa-upload"></i> Ajouter un CV
-        </button>
-        <a href="/matching" class="btn btn-primary">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Lancer un matching
-        </a>
-      </div>
+      <p>Lancez un matching IA pour analyser vos premiers candidats.</p>
+      <a href="/matching" class="btn btn-primary">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Lancer un matching
+      </a>
     </div>
   </div>
 {% endif %}
 
-<!-- Modal suppression -->
+<!-- ── Modal de confirmation ── -->
 <div class="modal-overlay" id="deleteModal">
   <div class="modal-box">
     <div class="modal-icon"><i class="fa-solid fa-trash"></i></div>
@@ -288,79 +203,22 @@
 </div>
 
 <script>
-  // ── Toggle upload panel ──
-  function toggleUpload(btn) {
-    var panel = document.getElementById('uploadPanel');
-    panel.classList.toggle('open');
-  }
-
-  // ── Drop zone ──
-  var dropZone  = document.getElementById('dropZone');
-  var fileInput = document.getElementById('cvFiles');
-  var uploadBtn = document.getElementById('uploadBtn');
-  var previewGrid = document.getElementById('filePreviewGrid');
-
-  dropZone.addEventListener('click', function(e) {
-    if (e.target.tagName !== 'BUTTON') fileInput.click();
-  });
-  dropZone.querySelector('.btn').addEventListener('click', function(e) {
-    e.stopPropagation(); fileInput.click();
-  });
-
-  fileInput.addEventListener('change', function() { handleFiles(fileInput.files); });
-
-  ['dragenter','dragover'].forEach(function(ev) {
-    dropZone.addEventListener(ev, function(e) {
-      e.preventDefault(); dropZone.classList.add('dragover');
-    });
-  });
-  ['dragleave','drop'].forEach(function(ev) {
-    dropZone.addEventListener(ev, function(e) {
-      e.preventDefault(); dropZone.classList.remove('dragover');
-    });
-  });
-  dropZone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    if (e.dataTransfer.files.length > 0) {
-      var dt = new DataTransfer();
-      for (var f of e.dataTransfer.files) dt.items.add(f);
-      fileInput.files = dt.files;
-      handleFiles(fileInput.files);
-    }
-  });
-
-  function handleFiles(files) {
-    previewGrid.innerHTML = '';
-    if (!files.length) {
-      previewGrid.style.display = 'none';
-      uploadBtn.disabled = true;
-      return;
-    }
-    previewGrid.style.display = 'grid';
-    uploadBtn.disabled = false;
-    for (var f of files) {
-      var card = document.createElement('div');
-      card.className = 'file-preview-card';
-      card.innerHTML =
-        '<i class="fa-regular fa-file-pdf fp-icon"></i>' +
-        '<div><div class="fp-name">' + f.name.replace('.pdf','') + '</div>' +
-        '<div class="fp-size">' + (f.size/1024).toFixed(1) + ' KB</div></div>';
-      previewGrid.appendChild(card);
-    }
-  }
-
-  // ── Modal suppression ──
   function openModal(id, nom) {
     document.getElementById('modalName').textContent = '"' + nom + '"';
     document.getElementById('deleteForm').action = '/candidats/supprimer/' + id;
     document.getElementById('deleteModal').classList.add('active');
   }
+
   function closeModal() {
     document.getElementById('deleteModal').classList.remove('active');
   }
+
+  // Fermer en cliquant sur l'overlay
   document.getElementById('deleteModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
+
+  // Fermer avec Escape
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeModal();
   });
