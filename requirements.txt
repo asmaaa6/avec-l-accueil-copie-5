@@ -11,3 +11,7 @@ psycopg2-binary==2.9.9
 pymupdf==1.24.5
 pytesseract==0.3.13
 Pillow==10.3.0
+spacy==3.7.5
+numpy==1.26.4
+blis==0.7.11
+thinc==8.2.5
