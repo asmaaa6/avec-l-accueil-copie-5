@@ -43,3 +43,10 @@ CREATE TABLE IF NOT EXISTS cvs (
 CREATE INDEX IF NOT EXISTS idx_offres_user ON offres(user_id);
 CREATE INDEX IF NOT EXISTS idx_cvs_offre ON cvs(offre_id);
 CREATE INDEX IF NOT EXISTS idx_cvs_fichier ON cvs(nom_fichier);
+
+
+ALTER TABLE users
+ADD COLUMN is_verified BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE users
+ADD COLUMN verification_code VARCHAR(10);
