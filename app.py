@@ -39,7 +39,7 @@ else:
 # ── SpaCy ──
 try:
     import spacy
-    nlp = spacy.load("fr_core_news_sm")
+    nlp = spacy.load("fr_core_news_sm", disable=["ner", "parser", "lemmatizer"])
     SPACY_OK = True
     print("✅ SpaCy fr_core_news_sm chargé")
 except Exception:
