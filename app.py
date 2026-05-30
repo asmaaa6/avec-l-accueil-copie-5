@@ -368,6 +368,7 @@ def dashboard():
     conn = get_db_connection()
     cur  = conn.cursor()
 
+    # Offres (pour affichage recent list si nécessaire)
     cur.execute("SELECT * FROM offres WHERE user_id=%s ORDER BY created_at DESC;", (session['user_id'],))
     offres = cur.fetchall()
 
@@ -383,10 +384,38 @@ def dashboard():
     avg = cur.fetchone()['avg']
     taux_match = round(avg) if avg else 0
 
+    cur.execute("""SELECT MAX(c.score) as best
+                   FROM cvs c
+                   JOIN offres o ON c.offre_id=o.id
+                   WHERE o.user_id=%s;""", (session['user_id'],))
+    best = cur.fetchone()['best']
+    meilleur_score = int(best) if best is not None else 0
+
+    # Activité récente: derniers CVs scorés
+    cur.execute("""
+        SELECT c.nom_candidat, c.nom_fichier, c.score,
+               c.created_at,
+               o.titre as offre_titre
+        FROM cvs c
+        JOIN offres o ON c.offre_id = o.id
+        WHERE o.user_id=%s
+        ORDER BY c.created_at DESC
+        LIMIT 8;
+    """, (session['user_id'],))
+    recent_items = cur.fetchall()
+
     cur.close()
     conn.close()
-    return render_template('dashboard.html', offres=offres,
-                           total_offres=total_offres, total_cvs=total_cvs, taux_match=taux_match)
+    return render_template(
+        'dashboard.html',
+        offres=offres,
+        total_offres=total_offres,
+        total_cvs=total_cvs,
+        taux_match=taux_match,
+        meilleur_score=meilleur_score,
+        recent_items=recent_items,
+    )
+
 
 # ══════════════════════════════════════════
 #   OFFRES
@@ -669,6 +698,117 @@ def supprimer_candidat(candidat_id):
         conn.close()
     return redirect(url_for('candidats'))
 
+@app.route('/statistiques')
+def statistiques():
+    r = auth_required()
+    if r:
+        return r
+
+
+    conn = get_db_connection()
+    cur  = conn.cursor()
+
+    cur.execute("SELECT COUNT(*) as n FROM offres WHERE user_id=%s;", (session['user_id'],))
+    total_offres = cur.fetchone()['n']
+
+    cur.execute("""SELECT COUNT(*) as n FROM cvs c
+                   JOIN offres o ON c.offre_id=o.id WHERE o.user_id=%s;""", (session['user_id'],))
+    total_cvs = cur.fetchone()['n']
+
+    cur.execute("""SELECT AVG(c.score) as avg FROM cvs c
+                   JOIN offres o ON c.offre_id=o.id WHERE o.user_id=%s;""", (session['user_id'],))
+    avg = cur.fetchone()['avg']
+    taux_match = round(avg) if avg else 0
+
+    cur.execute("""SELECT MAX(c.score) as best
+                   FROM cvs c
+                   JOIN offres o ON c.offre_id=o.id
+                   WHERE o.user_id=%s;""", (session['user_id'],))
+    best = cur.fetchone()['best']
+    meilleur_score = int(best) if best is not None else 0
+
+    cur.execute("""
+        SELECT c.nom_candidat, c.nom_fichier, c.score,
+               c.created_at,
+               o.titre as offre_titre
+        FROM cvs c
+        JOIN offres o ON c.offre_id = o.id
+        WHERE o.user_id=%s
+        ORDER BY c.created_at DESC
+        LIMIT 8;
+    """, (session['user_id'],))
+    recent_items = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        'statistiques.html',
+        total_offres=total_offres,
+        total_cvs=total_cvs,
+        taux_match=taux_match,
+        meilleur_score=meilleur_score,
+        recent_items=recent_items,
+    )
+
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    r = auth_required()
+    if r: return r
+
+    # Démo : sauvegarde locale en session (OTP/profil backend plus tard)
+    language = session.get('language', 'fr')
+    theme = session.get('theme', 'light')
+
+    if request.method == 'POST':
+        language = request.form.get('language', 'fr')
+        theme = request.form.get('theme', 'light')
+        session['language'] = language
+        session['theme'] = theme
+        flash('Settings mis à jour.', 'success')
+        return redirect(url_for('settings'))
+
+    return render_template('settings.html', language=language, theme=theme)
+
+
+@app.route('/assistant-ia', methods=['GET', 'POST'])
+def assistant_ia():
+    r = auth_required()
+    if r: return r
+
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        msg = (data.get('message') or '').strip()
+        lang = (data.get('lang') or 'fr').strip().lower()
+
+        if not msg:
+            return {"reply": "Message vide."}
+
+        # Démo : réponses guidées (à brancher sur un LLM plus tard)
+        reply = ""
+        if 'score' in msg.lower() or 'matching' in msg.lower():
+            reply = (
+                "Le score global combine : TF-IDF (similarité sémantique), overlap des compétences, puis des boosts KNN. "
+                "Ensuite on ajoute des sous-scores : expérience, formation, langues. Le tout est normalisé entre 0 et 100."
+            )
+        elif 'offre' in msg.lower():
+            reply = "Pour rédiger une offre efficace, listez : titre, description, compétences clés (virgules), expérience et formation. Puis utilisez ces mots-clés pour guider le matching."
+        else:
+            reply = "Je peux aider : explique le scoring, propose des compétences pour ton offre, ou interprète les compétences manquantes."
+
+        # Petites adaptations langue (démo)
+        if lang.startswith('ar'):
+            reply = "(العربية) " + reply
+        elif lang.startswith('en'):
+            reply = "(English) " + reply
+
+        return {"reply": reply}
+
+    return render_template('assistant_ia.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
     

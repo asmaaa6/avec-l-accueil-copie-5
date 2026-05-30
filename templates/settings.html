@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Settings — Yassir RH{% endblock %}
+
+{% block head %}
+<style>
+  .settings-wrapper{max-width:850px;margin:0 auto;}
+  .form-card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:20px;padding:22px;box-shadow:var(--shadow-sm);} 
+  .form-title{font-weight:900;color:var(--text-main);margin-bottom:6px;}
+  .form-sub{color:var(--text-muted);margin:0 0 16px 0;}
+  .form-field{margin-bottom:16px;}
+  .form-field label{display:block;margin-bottom:6px;font-weight:700;color:var(--text-main);font-size:.88rem;}
+  .form-field input,.form-field select{width:100%;padding:11px 14px;background:var(--bg-app);border:1.5px solid var(--border-color);border-radius:12px;outline:none;color:var(--text-main);}
+  .form-field input:focus,.form-field select:focus{border-color:var(--accent);} 
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-wrapper">
+  <div class="page-header mb-4">
+    <h1 style="font-weight:800;font-size:1.8rem;letter-spacing:-0.5px;color:var(--text-main);margin-bottom:4px;">Settings</h1>
+    <p style="color:var(--text-muted);font-size:.95rem;margin-bottom:0;">Langue et préférences de l’espace recruteur.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Préférences</div>
+    <p class="form-sub">Les paramètres sont appliqués sur l’interface. (Les champs backend seront complétés lors de la phase OTP/Profil.)</p>
+
+    <form action="{{ url_for('settings') }}" method="POST">
+      <div class="form-field">
+        <label for="language">Langue</label>
+        <select id="language" name="language">
+          {% for lang in ['fr','en','ar'] %}
+            <option value="{{ lang }}" {% if language==lang %}selected{% endif %}>{{ lang|upper }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="theme">Thème</label>
+        <select id="theme" name="theme">
+          {% for t in ['light','dark'] %}
+            <option value="{{ t }}" {% if theme==t %}selected{% endif %}>{{ t|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button type="submit" class="btn btn-primary-custom" style="font-size:.92rem;padding:10px 18px;">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

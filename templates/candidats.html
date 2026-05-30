@@ -1,201 +1,95 @@
 {% extends "base.html" %}
 {% block title %}Candidats — Yassir RH{% endblock %}
+
 {% block head %}
 <style>
-  .analyses-list { display: flex; flex-direction: column; gap: 0.75rem; }
-
-  .analyse-row {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.1rem 1.4rem;
-    display: flex; align-items: center; gap: 1rem;
-    box-shadow: var(--shadow-sm);
-    color: inherit;
-    transition: border-color 0.15s, transform 0.15s;
+  .candidat-list-wrapper { max-width: 950px; margin: 0 auto; }
+  .analyse-row-item {
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px;
+    padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow-sm); transition: var(--transition); margin-bottom: 12px;
   }
-  .analyse-row:hover { border-color: var(--accent-m); transform: translateY(-1px); }
-
-  .analyse-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent) 0%, #8B5CF6 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 800; font-size: 1rem; flex-shrink: 0;
+  .analyse-row-item:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  
+  .avatar-circle-ui {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--accent-gradient);
+    display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.95rem;
   }
 
-  .analyse-info { flex: 1; min-width: 0; }
-  .analyse-name { font-weight: 700; font-size: 0.92rem; color: var(--text); }
-  .analyse-meta {
-    font-size: 0.78rem; color: var(--muted); margin-top: 3px;
-    display: flex; align-items: center; gap: 8px;
+  /* Modal de confirmation */
+  .modal-blur-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px;
   }
-
-  .analyse-right { display: flex; align-items: center; gap: 0.85rem; flex-shrink: 0; }
-
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 0.75rem; font-weight: 600;
-    padding: 3px 10px; border-radius: 20px;
-    background: var(--green-l); color: var(--green);
+  .modal-blur-overlay.active { display: flex; }
+  .modal-card-box {
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 20px;
+    padding: 32px; width: 100%; max-width: 460px; text-align: center; box-shadow: var(--shadow-lg);
+    animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .status-badge::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-  }
-
-  .score-display {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.88rem; font-weight: 700; color: var(--accent);
-    min-width: 52px; text-align: right;
-  }
-
-  .btn-delete {
-    width: 32px; height: 32px; border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--white); color: var(--muted);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: var(--transition); flex-shrink: 0;
-    font-size: 0.8rem;
-  }
-  .btn-delete:hover { background: var(--red-l); color: var(--red); border-color: var(--red); }
-
-  /* ── Modal ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(15,23,42,0.45); backdrop-filter: blur(3px);
-    z-index: 999; align-items: center; justify-content: center;
-  }
-  .modal-overlay.active { display: flex; }
-
-  .modal-box {
-    background: var(--white); border-radius: 18px;
-    padding: 32px 28px; max-width: 400px; width: 90%;
-    box-shadow: var(--shadow-lg); text-align: center;
-    animation: popIn 0.2s ease;
-  }
-  @keyframes popIn {
-    from { transform: scale(0.92); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
-
-  .modal-icon {
-    width: 56px; height: 56px; border-radius: 50%;
-    background: var(--red-l); color: var(--red);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; margin: 0 auto 16px;
-  }
-  .modal-title { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
-  .modal-msg   { font-size: 0.87rem; color: var(--muted); line-height: 1.55; margin-bottom: 24px; }
-  .modal-name  { font-weight: 700; color: var(--text); }
-
-  .modal-actions { display: flex; gap: 10px; justify-content: center; }
-
-  .btn-cancel {
-    padding: 10px 22px; border-radius: 10px;
-    border: 1px solid var(--border); background: var(--white);
-    color: var(--text); font-weight: 600; font-size: 0.875rem;
-    cursor: pointer; transition: var(--transition);
-  }
-  .btn-cancel:hover { background: var(--bg); }
-
-  .btn-confirm-delete {
-    padding: 10px 22px; border-radius: 10px;
-    border: none; background: var(--red);
-    color: white; font-weight: 700; font-size: 0.875rem;
-    cursor: pointer; transition: var(--transition);
-  }
-  .btn-confirm-delete:hover { background: #B91C1C; transform: translateY(-1px); }
-
-  /* Empty state */
-  .empty-state { text-align: center; padding: 48px 24px; }
-  .empty-icon  { font-size: 2.5rem; margin-bottom: 12px; }
-  .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-  .empty-state p  { font-size: 0.85rem; color: var(--muted); margin-bottom: 18px; }
+  @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <h1>Candidats</h1>
-    <p>{{ candidats|length }} candidat{{ 's' if candidats|length != 1 }} analysé{{ 's' if candidats|length != 1 }}</p>
+<div class="candidat-list-wrapper">
+  
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 style="font-weight: 800; font-size: 1.8rem; color: var(--text-main); margin-bottom: 4px;">Vivier de Talents</h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 0;">Consultez la base de données globale des profils extraits par l'application.</p>
+    </div>
+    <a href="/upload-cv" class="btn btn-primary-custom" style="font-size: 0.88rem; padding: 10px 18px;">
+      <i class="fa-solid fa-cloud-arrow-up me-1"></i> Importer des CV
+    </a>
   </div>
-  <a href="/matching" class="btn btn-primary">
-    <i class="fa-solid fa-wand-magic-sparkles"></i> Nouveau matching
-  </a>
-</div>
 
-{% if candidats %}
-  <div class="analyses-list">
-    {% for c in candidats %}
-      {% set nom = c.nom_fichier | replace('.pdf','') | replace('_',' ') | title %}
-      {% set initiale = nom[0] | upper %}
-      <div class="analyse-row">
+  {% if candidats %}
+    <div class="d-flex flex-column">
+      {% for c in candidats %}
+        <div class="analyse-row-item">
+          <div class="d-flex align-items-center gap-3">
+            <div class="avatar-circle-ui">{{ c.nom[:2].upper() }}</div>
+            <div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 3px;">{{ c.nom }}</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0;">
+                <i class="fa-regular fa-envelope me-1"></i> {{ c.email if c.email else 'Non extrait' }} 
+                {% if c.telephone %} · <i class="fa-solid fa-phone style-icon me-1"></i> {{ c.telephone }}{% endif %}
+              </p>
+            </div>
+          </div>
 
-        <!-- Avatar initiale -->
-        <div class="analyse-avatar">{{ initiale }}</div>
-
-        <!-- Infos -->
-        <div class="analyse-info">
-          <div class="analyse-name">{{ nom }}</div>
-          <div class="analyse-meta">
-            <span><i class="fa-regular fa-calendar" style="margin-right:3px;"></i>
-              {{ c.created_at.strftime('%d %b %Y') if c.created_at else 'Récemment' }}
-            </span>
-            <span>·</span>
-            <span>Score : {{ c.score }}/100</span>
+          <div class="d-flex align-items-center gap-3">
+            <button class="btn-icon" onclick="openDeleteModal('{{ c.id }}', '{{ c.nom }}')" style="color: var(--danger); background: rgba(239, 68, 68, 0.05); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
         </div>
-
-        <!-- Droite -->
-        <div class="analyse-right">
-          <span class="status-badge">Terminé</span>
-
-          <!-- Score coloré -->
-          <span class="score-display" style="
-            {% if c.score >= 75 %}color:#10B981;
-            {% elif c.score >= 50 %}color:var(--accent);
-            {% elif c.score >= 30 %}color:#F59E0B;
-            {% else %}color:var(--red);{% endif %}
-          ">{{ c.score }}/100</span>
-
-          <!-- Bouton supprimer -->
-          <button class="btn-delete"
-            onclick="openModal({{ c.id }}, '{{ nom }}')"
-            title="Supprimer ce candidat">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-
-{% else %}
-  <div class="card">
-    <div class="empty-state">
-      <div class="empty-icon">👤</div>
-      <h3>Aucun candidat pour le moment</h3>
-      <p>Lancez un matching IA pour analyser vos premiers candidats.</p>
-      <a href="/matching" class="btn btn-primary">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> Lancer un matching
-      </a>
+      {% endfor %}
     </div>
-  </div>
-{% endif %}
+  {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px;">
+      <i class="fa-solid fa-folder-open style-icon" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 16px; display: block;"></i>
+      <h3 style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Aucun candidat référencé</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 4px auto 0 auto;">Le vivier est actuellement vide. Lancez une extraction OCR de fichiers PDF pour ajouter automatiquement des profils.</p>
+    </div>
+  {% endif %}
+</div>
 
-<!-- ── Modal de confirmation ── -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal-box">
-    <div class="modal-icon"><i class="fa-solid fa-trash"></i></div>
-    <div class="modal-title">Supprimer ce candidat ?</div>
-    <p class="modal-msg">
-      Vous êtes sur le point de supprimer <span class="modal-name" id="modalName"></span>.
-      Cette action est irréversible.
+<div class="modal-blur-overlay" id="deleteModal" onclick="closeDeleteModal()">
+  <div class="modal-card-box" onclick="event.stopPropagation()">
+    <div style="width: 56px; height: 56px; background: rgba(239, 68, 68, 0.08); color: var(--danger); font-size: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto;">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Confirmer la suppression ?</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 24px;">
+      Vous allez retirer définitivement le candidat <span id="modalName" class="fw-bold text-dark"></span> ainsi que l'historique de ses compétences de votre espace. Cette action est irréversible.
     </p>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <form id="deleteForm" method="POST">
-        <button type="submit" class="btn-confirm-delete">
-          <i class="fa-solid fa-trash" style="margin-right:6px;"></i>Supprimer
+    <div class="d-flex gap-3 justify-content-center">
+      <button class="btn btn-link-custom" onclick="closeDeleteModal()" style="font-size: 0.9rem; font-weight: 700;">Annuler</button>
+      <form id="deleteForm" method=\"POST\" action="">
+        <button type="submit" class="btn btn-primary-custom" style="background: var(--danger); box-shadow: none; font-size: 0.9rem; padding: 10px 24px; border-radius: 10px;">
+          <i class="fa-solid fa-trash me-1"></i> Supprimer
         </button>
       </form>
     </div>
@@ -203,24 +97,13 @@
 </div>
 
 <script>
-  function openModal(id, nom) {
-    document.getElementById('modalName').textContent = '"' + nom + '"';
+  function openDeleteModal(id, nom) {
+    document.getElementById('modalName').textContent = nom;
     document.getElementById('deleteForm').action = '/candidats/supprimer/' + id;
     document.getElementById('deleteModal').classList.add('active');
   }
-
-  function closeModal() {
+  function closeDeleteModal() {
     document.getElementById('deleteModal').classList.remove('active');
   }
-
-  // Fermer en cliquant sur l'overlay
-  document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-
-  // Fermer avec Escape
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
-  });
 </script>
 {% endblock %}

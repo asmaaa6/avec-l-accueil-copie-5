@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Statistiques — Yassir RH{% endblock %}
+
+{% block head %}
+<style>
+  .stats-wrapper{max-width:1000px;margin:0 auto;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:22px;}
+  .stat-card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);}
+  .stat-label{color:var(--text-muted);font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+  .stat-value{font-size:2rem;font-weight:900;margin-bottom:6px;}
+  .mini-text{color:var(--text-muted);font-size:.9rem;margin:0;}
+  .chart-box{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:20px;padding:22px;box-shadow:var(--shadow-sm);}
+  .chart-title{font-weight:900;color:var(--text-main);margin-bottom:8px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-wrapper">
+  <div class="page-header mb-4">
+    <h1 style="font-weight:800;font-size:1.8rem;letter-spacing:-0.5px;color:var(--text-main);margin-bottom:4px;">Statistiques RH</h1>
+    <p style="color:var(--text-muted);font-size:.95rem;margin-bottom:0;">KPIs de votre activité et performance du matching IA.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Offres actives</div>
+      <div class="stat-value">{{ total_offres }}</div>
+      <p class="mini-text">Nombre d’offres créées par votre compte.</p>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">CV analysés</div>
+      <div class="stat-value">{{ total_cvs }}</div>
+      <p class="mini-text">Total des CV enregistrés dans PostgreSQL.</p>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Taux moyen matching</div>
+      <div class="stat-value">{{ taux_match }}%</div>
+      <p class="mini-text">Moyenne des scores globaux (0-100).</p>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Meilleur score</div>
+      <div class="stat-value">{{ meilleur_score }}%</div>
+      <p class="mini-text">Score maximum observé sur vos analyses.</p>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Activité récente (top 8)</div>
+    <p class="mini-text">Derniers scores (par date) calculés via TF-IDF / Cosine Similarity + boost KNN.</p>
+
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+      {% if recent_items and recent_items|length > 0 %}
+        {% for item in recent_items %}
+          <div class="ranking-row" style="margin:0;cursor:default;">
+            <div class="d-flex align-items-center gap-3" style="min-width:0;">
+              <div class="badge-rank" style="width:36px;height:36px;">{{ loop.index }}</div>
+              <div style="min-width:0;">
+                <div style="font-weight:800;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.nom_candidat }}</div>
+                <div style="color:var(--text-muted);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  <i class="fa-regular fa-file-pdf me-1"></i>{{ item.nom_fichier }}
+                  <span class="ms-2">· Offre: <span style="font-weight:700;color:var(--text-main);">{{ item.offre_titre }}</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <div class="score-badge-dashboard" style="font-size:.95rem;padding:6px 14px;">{{ item.score }}% Match</div>
+              <div style="color:var(--text-muted);font-size:.85rem;">{{ item.created_at.strftime('%d/%m/%Y %H:%M') if item.created_at else '' }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:40px 14px;border:1px dashed var(--border-color);border-radius:16px;color:var(--text-muted);">
+          Aucune activité récente disponible.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

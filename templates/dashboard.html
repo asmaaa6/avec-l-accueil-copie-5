@@ -1,64 +1,211 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — Yassir RH{% endblock %}
+{% block title %}Centre de Contrôle RH — Yassir RH{% endblock %}
+
+{% block head %}
+<style>
+
+  /* Styles spécifiques internes au Dashboard pour les cartes d'indicateurs (KPIs) */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(108, 92, 231, 0.15);
+  }
+  .kpi-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+  .kpi-title {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .kpi-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+    margin-bottom: 0;
+  }
+  
+  /* Section d'activité récente */
+  .activity-section {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .activity-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-app);
+    transition: var(--transition);
+  }
+  .activity-row:hover {
+    border-color: var(--primary);
+    background: var(--bg-surface);
+    transform: translateX(4px);
+  }
+  .activity-icon-file {
+    width: 42px;
+    height: 42px;
+    background: rgba(239, 68, 68, 0.08);
+    color: #EF4444;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+  body.dark-theme .activity-icon-file {
+    background: rgba(239, 68, 68, 0.2);
+  }
+  .score-badge-dashboard {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 51, 102, 0.1);
+  }
+  body.dark-theme .score-badge-dashboard {
+    background: rgba(255, 51, 102, 0.15);
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <h1>Tableau de bord</h1>
-  <p style="color: var(--slate-600); font-size: 0.95rem;">Suivez vos indicateurs de recrutement en temps réel.</p>
+<div class="page-header mb-4">
+  <h1 style="font-weight: 800; font-size: 1.8rem; letter-spacing: -0.5px; color: var(--text-main); margin-bottom: 4px;">Tableau de bord</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">Suivez vos indicateurs clés de recrutement et le matching IA en temps réel.</p>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px;">
-  <div class="card" style="margin-bottom: 0; display: flex; align-items: center; gap: 20px;">
-    <div style="width: 52px; height: 52px; background: #EFF6FF; color: #3B82F6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+  <div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-icon-box" style="background: rgba(59, 130, 246, 0.08); color: #3B82F6;">
       <i class="fa-solid fa-briefcase"></i>
     </div>
     <div>
-      <p style="font-size: 0.85rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase;">Offres Actives</p>
-      <h2 style="font-size: 1.8rem; font-weight: 700;">12</h2>
+      <p class="kpi-title">Offres Actives</p>
+      <h2 class="kpi-value">{{ total_offres }}</h2>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom: 0; display: flex; align-items: center; gap: 20px;">
-    <div style="width: 52px; height: 52px; background: #ECFDF5; color: #10B981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+  <div class="kpi-card">
+    <div class="kpi-icon-box" style="background: rgba(16, 185, 129, 0.08); color: #10B981;">
       <i class="fa-solid fa-file-invoice"></i>
     </div>
     <div>
-      <p style="font-size: 0.85rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase;">CVs Analysés</p>
-      <h2 style="font-size: 1.8rem; font-weight: 700;">148</h2>
+      <p class="kpi-title">CV Analysés</p>
+      <h2 class="kpi-value">{{ total_cvs }}</h2>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom: 0; display: flex; align-items: center; gap: 20px;">
-    <div style="width: 52px; height: 52px; background: #FFF1F2; color: #F43F5E; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-      <i class="fa-solid fa-bolt"></i>
+  <div class="kpi-card">
+    <div class="kpi-icon-box" style="background: rgba(139, 92, 246, 0.08); color: #8B5CF6;">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
     </div>
     <div>
-      <p style="font-size: 0.85rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase;">Taux de Match Moyen</p>
-      <h2 style="font-size: 1.8rem; font-weight: 700;">74%</h2>
+      <p class="kpi-title">Taux Moyen Matching</p>
+      <h2 class="kpi-value">{{ taux_match }}%</h2>
     </div>
   </div>
 </div>
 
-<div class="card">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-    <h3 style="font-size: 1.15rem; font-weight: 700;">Analyses de candidatures récentes</h3>
-    <a href="/matching" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;">Nouvelle analyse</a>
+
+<div class="activity-section">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Analyses de candidatures récentes</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">Derniers documents extraits et scorés via TF-IDF / Cosine Similarity.</p>
+    </div>
+    <a href="/upload-cv" class="btn btn-primary-custom" style="padding: 10px 18px; font-size: 0.88rem;">
+      <i class="fa-solid fa-plus me-2"></i> Nouvelle analyse
+    </a>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 12px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--slate-100); border-radius: var(--radius-md); transition: var(--transition);" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--slate-100)'">
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <div style="width: 40px; height: 40px; background: var(--slate-100); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--slate-700);">
-          <i class="fa-regular fa-file-pdf" style="font-size: 1.2rem;"></i>
+  <div class="d-flex flex-column gap-3">
+    <div class="activity-row">
+      <div class="d-flex align-items-center gap-3">
+        <div class="activity-icon-file">
+          <i class="fa-regular fa-file-pdf"></i>
         </div>
         <div>
-          <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 2px;">CV_Dev_Backend_Alger.pdf</h4>
-          <p style="font-size: 0.8rem; color: var(--slate-400);">Analysé il y a 10 minutes • Rattaché à l'offre #3</p>
+          <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px;">CV_Dev_Backend_Alger.pdf</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">
+            <i class="fa-regular fa-clock me-1"></i> Il y a 10 minutes · Offre: <span class="fw-semibold text-reset">Ingénieur Python / Flask</span>
+          </p>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 20px;">
-        <span class="badge badge-success">Excellent (88%)</span>
-        <i class="fa-solid fa-chevron-right" style="color: var(--slate-400); font-size: 0.85rem;"></i>
+      <div class="d-flex align-items-center gap-3">
+        <div class="score-badge-dashboard">92% Match</div>
+        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.85rem;"></i>
+      </div>
+    </div>
+
+    <div class="activity-row">
+      <div class="d-flex align-items-center gap-3">
+        <div class="activity-icon-file">
+          <i class="fa-regular fa-file-pdf"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px;">Sara_Mesaoudi_Data.pdf</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">
+            <i class="fa-regular fa-clock me-1"></i> Il y a 1 heure · Offre: <span class="fw-semibold text-reset">Data Scientist KNN</span>
+          </p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="score-badge-dashboard">84% Match</div>
+        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.85rem;"></i>
+      </div>
+    </div>
+
+    <div class="activity-row">
+      <div class="d-flex align-items-center gap-3">
+        <div class="activity-icon-file">
+          <i class="fa-regular fa-file-pdf"></i>
+        </div>
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px;">Yacine_Khelil_RH.pdf</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0;">
+            <i class="fa-regular fa-clock me-1"></i> Hier · Offre: <span class="fw-semibold text-reset">Ingénieur Python / Flask</span>
+          </p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="score-badge-dashboard" style="background: rgba(245, 158, 11, 0.08); color: #F59E0B; border-color: rgba(245, 158, 11, 0.1);">65% Match</div>
+        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.85rem;"></i>
       </div>
     </div>
   </div>

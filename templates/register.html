@@ -2,65 +2,168 @@
 
 {% block title %}Créer un compte - Yassir RH{% endblock %}
 
-{% block head %}
-<style>
-    .login-outer {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at 10% 20%, rgb(255, 200, 212) 0%, rgb(255, 240, 243) 90.1%);
-        padding: 20px;
-    }
-    .login-card {
-        background: #ffffff;
-        padding: 40px;
-        border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        width: 100%;
-        max-width: 450px;
-    }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
-    .form-control { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 12px; outline: none; }
-    .btn-primary { width: 100%; background: #FF3366; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-</style>
-{% endblock %}
+{% block block_head %}{% endblock %}
 
 {% block content %}
-<div class="login-outer">
-    <div class="login-card">
-        <h1 style="font-size: 26px; margin-bottom: 5px;">Inscription</h1>
-        <p style="color: #64748B; margin-bottom: 25px;">Créez votre profil recruteur</p>
+<div class="login-outer d-flex align-items-center justify-content-center" style="min-height: 100vh; background: radial-gradient(circle at 90% 10%, rgba(108, 92, 231, 0.05) 0%, var(--bg-app) 90%); padding: 40px 20px;">
+    <div class="auth-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 40px; border-radius: 24px; box-shadow: var(--shadow-lg); width: 100%; max-width: 560px; transition: var(--transition);">
+        <div class="text-center mb-4">
+            <a class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3" href="/">
+                <div class="brand-logo-box">Y</div>
+                <span class="brand-name">Yassir <span class="gradient-text">RH</span></span>
+            </a>
+            <h1 style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.5px;">Rejoignez Yassir RH</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">Créez votre compte recruteur en 5 étapes</p>
+        </div>
 
-        <form action="{{ url_for('register') }}" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="nom">Nom complet *</label>
-                <input type="text" id="nom" name="nom" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="entreprise">Entreprise / Organisation</label>
-                <input type="text" id="entreprise" name="entreprise" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="email">Adresse email *</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mot de passe *</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="avatar">Photo de profil (Avatar)</label>
-                <input type="file" id="avatar" name="avatar" class="form-control" accept="image/*">
+        <div class="mb-4" aria-label="Progression" style="display:flex; gap:10px; justify-content:space-between;">
+            {% for i in range(1,6) %}
+                <div style="flex:1; text-align:center;">
+                    <div id="stepDot{{ i }}" style="width:34px;height:34px;border-radius:50%;margin:0 auto 8px auto;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,0.08);color:var(--accent);font-weight:800;">{{ i }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;">Étape</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('register') }}" method="POST" enctype="multipart/form-data" id="registerWizardForm">
+            <input type="hidden" name="step" value="5">
+
+            <!-- STEP 1 -->
+            <div class="wizard-step" data-step="1">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="nom" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Nom complet *</label>
+                    <input type="text" id="nom" name="nom" class="form-control" placeholder="Ex: Ahmed Benali" required
+                           style="width: 100%; padding: 11px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none;">
+                </div>
             </div>
 
-            <button type="submit" class="btn-primary" style="margin-top: 10px;">S'inscrire</button>
+            <!-- STEP 2 -->
+            <div class="wizard-step" data-step="2" style="display:none;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="entreprise" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Entreprise / Organisation</label>
+                    <input type="text" id="entreprise" name="entreprise" class="form-control" placeholder="Ex: Yassir Tech"
+                           style="width: 100%; padding: 11px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none;">
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="wizard-step" data-step="3" style="display:none;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="email" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Adresse email professionnelle *</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="ahmed@entreprise.com" required
+                           style="width: 100%; padding: 11px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none;">
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="wizard-step" data-step="4" style="display:none;">
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label for="password" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Mot de passe sécurisé *</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required
+                           style="width: 100%; padding: 11px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none;">
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="wizard-step" data-step="5" style="display:none;">
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="avatar" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Photo de profil (Avatar)</label>
+                    <input type="file" id="avatar" name="avatar" class="form-control" accept="image/*"
+                           style="width: 100%; padding: 9px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none; font-size: 0.88rem;">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center" style="gap:12px; margin-top: 8px;">
+                <button type="button" class="btn btn-link-custom" id="prevBtn" style="display:none; padding-left:0;">&larr; Retour</button>
+
+                <div style="flex:1;"></div>
+
+                <button type="button" class="btn btn-primary-custom" id="nextBtn" style="padding: 10px 22px; border-radius: 12px; font-weight: 700;">
+                    Continuer <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+
+                <button type="submit" class="btn btn-primary-custom" id="submitBtn" style="display:none; padding: 10px 22px; border-radius: 12px; font-weight: 700;">
+                    Créer mon compte recruteur <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
         </form>
 
-        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #64748B;">
-            Déjà inscrit ? <a href="{{ url_for('login') }}" style="color: #FF3366; text-decoration: none; font-weight: 600;">Se connecter</a>
+        <p style="text-align: center; margin-top: 22px; font-size: 0.88rem; color: var(--text-muted); mb-0;">
+            Déjà inscrit ? <a href="{{ url_for('login') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Se connecter</a>
         </p>
     </div>
 </div>
+
+<script>
+    (function(){
+        const steps = Array.from(document.querySelectorAll('.wizard-step'));
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let current = 1;
+
+        function setDots(step){
+            for(let i=1;i<=5;i++){
+                const dot = document.getElementById('stepDot'+i);
+                if(!dot) continue;
+                if(i < step){
+                    dot.style.background = 'rgba(16,185,129,0.15)';
+                    dot.style.color = '#10B981';
+                } else if(i === step){
+                    dot.style.background = 'var(--accent-gradient)';
+                    // gradient background doesn't work directly on div like that; keep fallback:
+                    dot.style.background = 'rgba(108,92,231,0.20)';
+                    dot.style.color = 'var(--accent)';
+                    dot.style.border = '1px solid rgba(108,92,231,0.25)';
+                } else {
+                    dot.style.background = 'rgba(108,92,231,0.08)';
+                    dot.style.color = 'var(--accent)';
+                    dot.style.border = 'none';
+                }
+            }
+        }
+
+        function showStep(step){
+            steps.forEach(s => {
+                const st = parseInt(s.getAttribute('data-step'), 10);
+                s.style.display = (st === step) ? 'block' : 'none';
+            });
+
+            prevBtn.style.display = step === 1 ? 'none' : 'inline-flex';
+            nextBtn.style.display = step === 5 ? 'none' : 'inline-flex';
+            submitBtn.style.display = step === 5 ? 'inline-flex' : 'none';
+
+            setDots(step);
+            current = step;
+        }
+
+        function validateStep(step){
+            // Validate only required inputs for the current step.
+            const container = document.querySelector('.wizard-step[data-step="'+step+'"]');
+            if(!container) return true;
+            const required = container.querySelectorAll('[required]');
+            for(const el of required){
+                if((el.type === 'file' && el.files && el.files.length === 0) || !el.value){
+                    el.focus();
+                    el.reportValidity?.();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if(current > 1) showStep(current - 1);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if(!validateStep(current)) return;
+            if(current < 5) showStep(current + 1);
+        });
+
+        // Initialize
+        showStep(1);
+    })();
+</script>
 {% endblock %}

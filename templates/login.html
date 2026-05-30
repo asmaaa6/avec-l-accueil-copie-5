@@ -2,58 +2,54 @@
 
 {% block title %}Se connecter à Yassir RH{% endblock %}
 
-{% block head %}
-<style>
-    .login-outer {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at 10% 20%, rgb(255, 200, 212) 0%, rgb(255, 240, 243) 90.1%);
-        padding: 20px;
-    }
-    .login-card {
-        background: #ffffff;
-        padding: 40px;
-        border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        width: 100%;
-        max-width: 450px;
-    }
-    .login-header h1 { font-size: 28px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
-    .form-control { width: 100%; padding: 14px 16px; border: 1.5px solid #E2E8F0; border-radius: 12px; outline: none; font-size: 15px; }
-    .form-control:focus { border-color: #FF3366; }
-    .btn-primary { width: 100%; background: #FF3366; color: white; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-    .btn-primary:hover { background: #E02253; }
-</style>
-{% endblock %}
+{% block block_head %}{% endblock %}
 
 {% block content %}
-<div class="login-outer">
-    <div class="login-card">
-        <div class="login-header">
-            <h1>Connexion</h1>
-            <p style="color: #64748B; margin-bottom: 30px;">Accédez à votre espace Recruteur</p>
+<div class="login-outer d-flex align-items-center justify-content-center" style="min-height: 100vh; background: radial-gradient(circle at 10% 20%, rgba(255, 51, 102, 0.05) 0%, var(--bg-app) 90%); padding: 20px;">
+    <div class="auth-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 40px; border-radius: 24px; box-shadow: var(--shadow-lg); width: 100%; max-width: 450px; transition: var(--transition);">
+        
+        <div class="text-center mb-4">
+            <a class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3" href="/">
+                <div class="brand-logo-box">Y</div>
+                <span class="brand-name">Yassir <span class="gradient-text">RH</span></span>
+            </a>
+            <h1 style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.5px;">Connexion</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">Accédez à votre centre de contrôle RH</p>
         </div>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, msg in messages %}
+              <div class="alert-custom class-{{ category }}" style="margin-bottom: 20px; padding: 12px; font-size: 0.88rem;">
+                <p class="mb-0 text-danger"><i class="fas fa-exclamation-circle me-2"></i> {{ msg }}</p>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         <form action="{{ url_for('login') }}" method="POST">
-            <div class="form-group">
-                <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email" class="form-control" placeholder="exemple@yassir.com" required>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="email" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Adresse email professionnelle</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="exemple@yassir.com" required 
+                       style="width: 100%; padding: 12px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none; transition: var(--transition);">
             </div>
             
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            <div class="form-group" style="margin-bottom: 24px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label for="password" style="margin-bottom: 0; font-weight: 600; font-size: 0.88rem; color: var(--text-main);">Mot de passe</label>
+                    <a href="#" style="color: var(--accent); text-decoration: none; font-size: 0.82rem; font-weight: 500;">Mot de passe oublié ?</a>
+                </div>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required 
+                       style="width: 100%; padding: 12px 14px; background-color: var(--bg-app); border: 1.5px solid var(--border-color); color: var(--text-main); border-radius: 12px; outline: none; transition: var(--transition);">
             </div>
 
-            <button type="submit" class="btn-primary">Se connecter</button>
+            <button type="submit" class="btn btn-primary-custom w-100 py-3" style="font-weight: 600; border-radius: 12px;">
+                Se connecter <i class="fas fa-sign-in-alt ms-2"></i>
+            </button>
         </form>
 
-        <p style="text-align: center; margin-top: 25px; font-size: 14px; color: #64748B;">
-            Pas encore de compte ? <a href="{{ url_for('register') }}" style="color: #FF3366; text-decoration: none; font-weight: 600;">Créer un compte</a>
+        <p style="text-align: center; margin-top: 24px; font-size: 0.88rem; color: var(--text-muted); mb-0;">
+            Nouveau sur la plateforme ? <a href="{{ url_for('register') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Créer un compte</a>
         </p>
     </div>
 </div>

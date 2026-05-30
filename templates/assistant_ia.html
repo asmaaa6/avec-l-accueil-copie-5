@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant — Yassir RH{% endblock %}
+
+{% block head %}
+<style>
+  .assistant-wrapper{max-width:1000px;margin:0 auto;}
+  .assistant-layout{display:grid;grid-template-columns:1fr 360px;gap:16px;}
+  @media (max-width: 900px){.assistant-layout{grid-template-columns:1fr;}}
+
+  .chat-card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);min-height:520px;display:flex;flex-direction:column;}
+  .chat-messages{flex:1;overflow:auto;padding-right:8px;display:flex;flex-direction:column;gap:12px;}
+  .msg{max-width:85%;padding:12px 14px;border-radius:16px;}
+  .msg.user{align-self:flex-end;background:var(--primary-light);border:1px solid rgba(255,51,102,0.15);}
+  .msg.bot{align-self:flex-start;background:var(--bg-app);border:1px solid var(--border-color);}
+  .msg .meta{font-size:.78rem;color:var(--text-muted);margin-bottom:6px;font-weight:700;}
+  .msg .text{font-size:.92rem;color:var(--text-main);white-space:pre-wrap;}
+
+  .chat-input-bar{border-top:1px solid var(--border-color);padding-top:14px;display:flex;gap:10px;}
+  .chat-input-bar input{flex:1;padding:12px 14px;background:var(--bg-app);border:1.5px solid var(--border-color);border-radius:14px;outline:none;color:var(--text-main);}
+  .chat-input-bar input:focus{border-color:var(--accent);} 
+
+  .side-card{background:var(--bg-surface);border:1px solid var(--border-color);border-radius:20px;padding:18px;box-shadow:var(--shadow-sm);}
+  .side-title{font-weight:900;color:var(--text-main);margin-bottom:8px;}
+  .side-sub{color:var(--text-muted);margin:0 0 14px 0;font-size:.9rem;}
+  .quick-actions{display:flex;flex-direction:column;gap:10px;}
+  .quick-btn{width:100%;text-align:left;background:var(--bg-app);border:1px solid var(--border-color);border-radius:14px;padding:12px 12px;color:var(--text-main);font-weight:700;cursor:pointer;transition:var(--transition);} 
+  .quick-btn:hover{border-color:var(--accent);transform:translateY(-1px);} 
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assistant-wrapper">
+  <div class="page-header mb-4">
+    <h1 style="font-weight:800;font-size:1.8rem;letter-spacing:-0.5px;color:var(--text-main);margin-bottom:4px;">AI Assistant RH</h1>
+    <p style="color:var(--text-muted);font-size:.95rem;margin-bottom:0;">Demandez des recommandations, des explications de scoring et de l’aide pour la création d’offres.</p>
+  </div>
+
+  <div class="assistant-layout">
+    <div class="chat-card">
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <div class="chat-input-bar">
+        <input id="chatInput" type="text" placeholder="Écrire un message…" />
+        <button class="btn btn-primary-custom" id="chatSend" style="padding:10px 18px;border-radius:12px;">Envoyer</button>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-title">Actions rapides</div>
+      <p class="side-sub">Exemples de questions pour guider l’assistant.</p>
+
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="sendQuick('Explique-moi comment le score de matching est calculé.')">
+          Comment le score est calculé ?
+        </button>
+        <button class="quick-btn" onclick="sendQuick('Recommande 5 compétences à inclure pour une offre Développeur Python.')">
+          Compétences pour une offre
+        </button>
+        <button class="quick-btn" onclick="sendQuick('Aide-moi à rédiger une description d’offre courte (FR).')">
+          Rédaction d’une offre
+        </button>
+        <button class="quick-btn" onclick="sendQuick('Interprète les compétences manquantes et propose un plan d’amélioration.')">
+          Interpréter les lacunes
+        </button>
+      </div>
+
+      <div style="margin-top:18px;color:var(--text-muted);font-size:.86rem;line-height:1.5;">
+        <i class="fa-solid fa-shield-halved me-1" style="color:var(--accent);"></i>
+        L’endpoint backend peut être branché sur un modèle LLM. Pour l’instant, la démo répond en mode assistant guidé.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const messagesEl = document.getElementById('chatMessages');
+  const inputEl = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+
+  function addMsg(role, text){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'msg ' + role;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = role === 'user' ? 'Vous' : 'Assistant';
+    const body = document.createElement('div');
+    body.className = 'text';
+    body.textContent = text;
+    wrapper.appendChild(meta);
+    wrapper.appendChild(body);
+    messagesEl.appendChild(wrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function botStarter(){
+    messagesEl.innerHTML = '';
+    addMsg('bot', 'Bonjour 👋 Je suis votre assistant RH. Posez-moi une question sur la rédaction d’offres, l’interprétation du matching ou la sélection des meilleurs candidats.');
+  }
+  botStarter();
+
+  function sendQuick(q){
+    inputEl.value = q;
+    send();
+  }
+
+  async function send(){
+    const text = (inputEl.value || '').trim();
+    if(!text) return;
+    inputEl.value = '';
+    addMsg('user', text);
+
+    // Démo : endpoint optionnel
+    try {
+      const resp = await fetch('/assistant-ia', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ message: text, lang: 'fr' })
+      });
+      const data = await resp.json();
+      addMsg('bot', data.reply || 'Je n’ai pas pu générer de réponse pour le moment.');
+    } catch(e) {
+      addMsg('bot', 'Erreur réseau/endpoint non configuré.');
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+  inputEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ send(); }});
+</script>
+{% endblock %}
+

@@ -1,185 +1,170 @@
 {% extends "base.html" %}
-{% block title %}Offres d'emploi — CV Assistant{% endblock %}
+{% block title %}Offres d'emploi — Yassir RH{% endblock %}
+
 {% block head %}
 <style>
-  .offer-list { display: flex; flex-direction: column; gap: 0.75rem; }
-
-  .offer-row {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.1rem 1.4rem;
-    display: flex; align-items: center; gap: 1rem;
+  .offer-list-wrapper { max-width: 950px; margin: 0 auto; }
+  
+  .offer-row-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     box-shadow: var(--shadow-sm);
-    transition: border-color 0.15s, transform 0.15s;
+    transition: var(--transition);
+    margin-bottom: 14px;
   }
-
-  .offer-row:hover {
-    border-color: var(--accent-m);
-    transform: translateY(-1px);
+  .offer-row-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
-
-  .offer-row-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: var(--accent-l);
+  
+  .offer-icon-box {
+    width: 44px; height: 44px;
+    background: rgba(108, 92, 231, 0.08);
+    color: var(--accent);
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--accent); flex-shrink: 0;
+    font-size: 1.15rem; flex-shrink: 0;
+  }
+  body.dark-theme .offer-icon-box { background: rgba(108, 92, 231, 0.2); }
+
+  .skill-badge-mini {
+    display: inline-block;
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-right: 4px;
+    margin-top: 4px;
   }
 
-  .offer-row-info { flex: 1; min-width: 0; }
-  .offer-row-title { font-weight: 700; font-size: 0.9rem; color: var(--text); }
-  .offer-row-meta {
-    font-size: 0.78rem; color: var(--muted); margin-top: 3px;
-    display: flex; align-items: center; gap: 8px;
+  /* Modal Rénovée avec effet de Flou */
+  .modal-blur-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
   }
-  .offer-row-meta .sep { color: var(--border); }
-
-  .offer-row-actions {
-    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
+  .modal-blur-overlay.active { display: flex; }
+  
+  .modal-card-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    width: 100%; max-width: 550px;
+    box-shadow: var(--shadow-lg);
+    animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
   }
+  @keyframes modalPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-  .matcher-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 0.8rem; font-weight: 600; color: var(--accent);
-    text-decoration: none; padding: 0.3rem 0.65rem;
-    border-radius: 6px; transition: background 0.15s;
+  .form-field { margin-bottom: 16px; }
+  .form-field label {
+    display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: var(--text-main);
   }
-  .matcher-btn:hover { background: var(--accent-l); }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(26,29,39,0.5); z-index: 200;
-    align-items: center; justify-content: center;
-    backdrop-filter: blur(4px);
+  .form-field input, .form-field textarea {
+    width: 100%; padding: 11px 14px; background-color: var(--bg-app);
+    border: 1.5px solid var(--border-color); color: var(--text-main);
+    border-radius: 12px; outline: none; transition: var(--transition); font-size: 0.9rem;
   }
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: var(--white); border-radius: 16px;
-    width: 100%; max-width: 520px; margin: 1rem;
-    box-shadow: 0 24px 80px rgba(26,29,39,0.2);
-    animation: slideUp 0.2s ease;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-header h2 { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-
-  .modal-close {
-    width: 28px; height: 28px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg); border: none; cursor: pointer;
-    color: var(--muted); transition: all 0.15s;
-  }
-  .modal-close:hover { background: var(--red-l); color: var(--red); }
-
-  .modal-body { padding: 1.5rem; }
-
-  .modal-footer {
-    display: flex; gap: 0.75rem; justify-content: flex-end;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border);
-  }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--accent); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <h1>Offres d'emploi</h1>
-    <p>{{ offres|length }} offre{{ 's' if offres|length != 1 }} publiée{{ 's' if offres|length != 1 }}</p>
+<div class="offer-list-wrapper">
+  
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+    <div>
+      <h1 style="font-weight: 800; font-size: 1.8rem; color: var(--text-main); margin-bottom: 4px;">Offres d'emploi</h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 0;">Gérez vos fiches de postes repères pour calibrer les scores du moteur de matching.</p>
+    </div>
+    <button class="btn btn-primary-custom" onclick="openModal()" style="font-size: 0.88rem; padding: 10px 18px;">
+      <i class="fa-solid fa-plus me-1"></i> Publier une offre
+    </button>
   </div>
-  <button class="btn btn-primary" onclick="openModal()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Nouvelle offre
-  </button>
-</div>
 
-{% if offres %}
-  <div class="offer-list">
-    {% for o in offres %}
-      <div class="offer-row">
-        <div class="offer-row-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2"/>
-            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-          </svg>
-        </div>
-        <div class="offer-row-info">
-          <div class="offer-row-title">{{ o.titre }}</div>
-          <div class="offer-row-meta">
-            <span>{{ o.entreprise if o.entreprise else session.get('nom','') }}</span>
-            <span class="sep">•</span>
-            {% if o.experience %}
-              <span>{{ o.experience }}</span>
-              <span class="sep">•</span>
-            {% endif %}
-            <span>{{ o.created_at.strftime('%d/%m/%Y') if o.created_at else 'Récemment' }}</span>
+  {% if offres %}
+    <div class="d-flex flex-column">
+      {% for o in offres %}
+        <div class="offer-row-item">
+          <div class="d-flex align-items-center gap-3" style="flex: 1; min-width: 0;">
+            <div class="offer-icon-box"><i class="fa-solid fa-briefcase"></i></div>
+            <div style="flex: 1; min-width: 0;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ o.titre }}</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px;">
+                <i class="fa-solid fa-layer-group me-1"></i> Expérience requise : <span class="fw-semibold text-reset">{{ o.experience if o.experience else 'Non spécifiée' }}</span>
+              </p>
+              <div style="margin-top: 4px;">
+                {% if o.competences %}
+                  {% for comp in o.competences.split(',') %}
+                    <span class="skill-badge-mini">{{ comp.strip() }}</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-3 ms-3">
+            <a href="/matching?offre_id={{ o.id }}" class="btn btn-primary-custom" style="padding: 8px 14px; font-size: 0.82rem; background: var(--accent); border-color: var(--accent); box-shadow: none;">
+              <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Matcher des CV
+            </a>
           </div>
         </div>
-        <div class="offer-row-actions">
-          <span class="badge badge-stage">Stage</span>
-          <a href="/matching?offre_id={{ o.id }}" class="matcher-btn">
-            Matcher
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
-          </a>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-{% else %}
-  <div class="card">
-    <div class="empty-state">
-      <div class="empty-icon">💼</div>
-      <h3>Aucune offre publiée</h3>
-      <p>Créez votre première offre d'emploi pour commencer le matching de CV.</p>
-      <button class="btn btn-primary" onclick="openModal()">Créer une offre</button>
+      {% endfor %}
     </div>
-  </div>
-{% endif %}
+  {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px;">
+      <i class="fa-solid fa-briefcase style-icon" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 16px; display: block;"></i>
+      <h3 style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Aucune offre d'emploi publiée</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 420px; margin: 4px auto 0 auto;">Créez votre premier poste cible pour permettre à l'intelligence artificielle de calculer des proximités sémantiques.</p>
+    </div>
+  {% endif %}
+</div>
 
-<!-- MODAL NOUVELLE OFFRE -->
-<div class="modal-overlay" id="offreModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Nouvelle offre d'emploi</h2>
-      <button class="modal-close" onclick="closeModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+<div class="modal-blur-overlay" id="offreModal" onclick="closeModal()">
+  <div class="modal-card-box" onclick="event.stopPropagation()">
+    
+    <div style="padding: 24px 28px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0;">Créer un profil de poste cible</h3>
+      <button onclick="closeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <form action="/creer-offre" method="POST">
-      <div class="modal-body">
-        <div class="field">
-          <label>Titre du poste *</label>
-          <input type="text" name="titre" placeholder="Ex: Développeur Python Fullstack" required>
+
+    <form action="{{ url_for('offres') }}" method="POST">
+      <div style="padding: 28px;">
+        <div class="form-field">
+          <label>Intitulé exact du poste *</label>
+          <input type="text" name="titre" placeholder="Ex: Développeur Back-End Python / Flask" required>
         </div>
-        <div class="field">
-          <label>Compétences clés (séparées par des virgules) *</label>
-          <input type="text" name="competences" placeholder="Ex: Python, Flask, PostgreSQL, TF-IDF" required>
+        <div class="form-field">
+          <label>Compétences clés attendues (Séparées par des virgules) *</label>
+          <input type="text" name="competences" placeholder="Ex: Python, Flask, PostgreSQL, Docker, Git" required>
         </div>
-        <div class="field">
-          <label>Niveau d'expérience</label>
-          <input type="text" name="experience" placeholder="Ex: Junior, 2 ans, Étudiant L3">
+        <div class="form-field">
+          <label>Expérience / Profil recherché</label>
+          <input type="text" name="experience" placeholder="Ex: Confirmé (3 à 5 ans d'expérience)">
         </div>
-        <div class="field">
-          <label>Description du poste</label>
-          <textarea name="description" rows="3" placeholder="Détails de la mission..."></textarea>
+        <div class="form-field" style="margin-bottom: 0;">
+          <label>Description complémentaire de la mission</label>
+          <textarea name="description" rows="3" placeholder="Détaillez les tâches principales ou l'environnement technique..."></textarea>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" onclick="closeModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Publier l'offre</button>
+
+      <div style="padding: 20px 28px; background: var(--bg-app); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" class="btn btn-link-custom" onclick="closeModal()" style="font-weight: 600; padding: 10px 16px; font-size: 0.9rem;">Annuler</button>
+        <button type="submit" class="btn btn-primary-custom" style="font-size: 0.9rem; padding: 10px 20px; border-radius: 10px;">Enregistrer le poste</button>
       </div>
     </form>
+
   </div>
 </div>
 
@@ -191,12 +176,9 @@
     document.getElementById('offreModal').classList.remove('active');
   }
 
-  // Ouvrir directement si ?new=1
-  if (window.location.search.includes('new=1')) openModal();
-
-  // Fermer au clic sur l'overlay
-  document.getElementById('offreModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
+  // Ouverture automatique via paramètre URL (?new=1)
+  if (window.location.search.includes('new=1')) {
+    openModal();
+  }
 </script>
 {% endblock %}

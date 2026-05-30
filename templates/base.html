@@ -3,66 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Yassir RH{% endblock %}</title>
+  <title>{% block title %}Tableau de Bord - Yassir RH{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% block head %}{% endblock %}
 </head>
-<body>
+<body class="dashboard-body">
 
   <div class="app-layout">
-    <aside class="sidebar">
-      <a href="/" class="sidebar-brand">
-        <div class="brand-logo-box">Y</div>
-        <span class="brand-name">Yassir RH</span>
-      </a>
+    <aside class="sidebar-dashboard">
+      <div class="sidebar-brand-wrapper">
+        <a href="/dashboard" class="sidebar-brand">
+          <div class="brand-logo-box">Y</div>
+          <span class="brand-name">Yassir <span class="gradient-text">RH</span></span>
+        </a>
+      </div>
 
       <ul class="sidebar-menu">
         <li>
           <a href="/dashboard" class="sidebar-link {% if request.path == '/dashboard' %}active{% endif %}">
-            <i class="fa-solid degrad-icon fa-chart-pie"></i> Tableau de bord
+            <i class="fa-solid fa-chart-pie"></i> <span>Home (Dashboard)</span>
           </a>
         </li>
         <li>
           <a href="/offres" class="sidebar-link {% if request.path == '/offres' %}active{% endif %}">
-            <i class="fa-solid fa-briefcase"></i> Offres d'emploi
+            <i class="fa-solid fa-briefcase"></i> <span>Job Offers</span>
+          </a>
+        </li>
+        <li>
+          <a href="/upload-cv" class="sidebar-link {% if request.path == '/upload-cv' %}active{% endif %}">
+            <i class="fa-solid fa-file-arrow-up"></i> <span>CV Analysis (Upload)</span>
           </a>
         </li>
         <li>
           <a href="/matching" class="sidebar-link {% if request.path == '/matching' %}active{% endif %}">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Matching IA
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Candidate Ranking</span>
           </a>
         </li>
         <li>
-          <a href="/candidats" class="sidebar-link {% if request.path == '/candidates' %}active{% endif %}">
-            <i class="fa-solid fa-user-gradient fa-user-tie"></i> Candidats
+          <a href="/statistiques" class="sidebar-link {% if request.path == '/statistiques' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i> <span>Statistics</span>
+          </a>
+        </li>
+        <li>
+          <a href="/assistant-ia" class="sidebar-link {% if request.path == '/assistant-ia' %}active{% endif %}">
+            <i class="fa-solid fa-comment-dots"></i> <span>AI Assistant</span>
+          </a>
+        </li>
+        <li>
+          <a href="/settings" class="sidebar-link {% if request.path == '/settings' %}active{% endif %}">
+            <i class="fa-solid fa-gear"></i> <span>Settings</span>
           </a>
         </li>
       </ul>
 
-      <div class="sidebar-footer">
-        <a href="/logout" class="sidebar-link" style="color: #EF4444;">
-          <i class="fa-solid fa-arrow-right-from-bracket" style="color: #EF4444;"></i> Déconnexion
+      <div class="sidebar-footer-dashboard">
+         <div class="user-profile-mini mb-3 d-flex align-items-center gap-2">
+             <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+             <div class="user-info-text">
+                 <p class="user-name small mb-0 fw-bold text-truncate">Recruteur</p>
+                 <span class="badge badge-saas">SaaS Enterprise</span>
+             </div>
+         </div>
+        <a href="/logout" class="sidebar-link logout-btn">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Déconnexion</span>
         </a>
       </div>
     </aside>
 
-    <main class="main-content">
+    <main class="main-content-dashboard">
+      
+      <header class="dashboard-topbar d-flex justify-content-end align-items-center gap-3 px-4 mb-4">
+          <button class="btn btn-icon" id="dashThemeToggle"><i class="fas fa-moon"></i></button>
+          <span class="text-muted">|</span>
+          <span class="small fw-semibold text-uppercase">FR</span>
+      </header>
+
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, msg in messages %}
-            <div class="card" style="border-left: 4px solid var(--primary); padding: 16px; margin-bottom: 20px;">
-              <p style="font-weight: 500; font-size: 0.95rem;">{{ msg }}</p>
+            <div class="alert-custom class-{{ category }}">
+              <p class="mb-0"><i class="fas fa-info-circle me-2"></i> {{ msg }}</p>
             </div>
           {% endfor %}
         {% endif %}
       {% endwith %}
 
-      {% block content %}{% endblock %}
+      <div class="dashboard-content-wrapper">
+         {% block content %}{% endblock %}
+      </div>
     </main>
   </div>
 
+  <script>
+      // Gestion Thème Dashboard
+      const dashThemeToggle = document.getElementById('dashThemeToggle');
+      if(dashThemeToggle) {
+          dashThemeToggle.addEventListener('click', () => {
+              document.body.classList.toggle('dark-theme');
+              const icon = dashThemeToggle.querySelector('i');
+              icon.className = document.body.classList.contains('dark-theme') ? 'fas fa-sun' : 'fas fa-moon';
+          });
+      }
+  </script>
 </body>
 </html>
